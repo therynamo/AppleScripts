@@ -11,13 +11,13 @@ const findPopupButton = (display, name) => {
   return display.tabGroups[0].popUpButtons.byName(name)
 }
 
-const rotateDisplay = (systemEvents = se, display, popup, orientation = 'Standard') => {
+const rotateDisplay = (systemEvents = se, display, popup, orientation = 'Standard', timeout = 3) => {
   popup.click();
   systemEvents.keystroke(orientation);
   systemEvents.keyCode(36);
 
   // Wait for screen flash from orientation switch
-  delay(5);
+  delay(timeout);
 
   // Click orientation confirmation button
   const sheets = display.sheets;
@@ -49,3 +49,5 @@ const rotatedRotation = findPopupButton(rotatedDisplay, 'Rotation:');
 // Click drop down and select orientation by keystroke
 rotateDisplay(se, rotatedDisplay, rotatedRotation, '90');
 
+// Clean Up
+sp.quit();
