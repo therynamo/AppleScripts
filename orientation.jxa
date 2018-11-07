@@ -1,0 +1,51 @@
+const app = Application.currentApplication();
+app.includeStandardAdditions = true;
+const sp = Application("System Preferences");
+const se = Application("System Events");
+
+const findWindow = (systemEvents, displayName) => {
+  return se.processes['System Preferences'].windows.byName(displayName);
+}
+
+const findPopupButton = (display, name) => {
+  return display.tabGroups[0].popUpButtons.byName(name)
+}
+
+const rotateDisplay = (systemEvents = se, display, popup, orientation = 'Standard') => {
+  popup.click();
+  systemEvents.keystroke(orientation);
+  systemEvents.keyCode(36);
+
+  // Wait for screen flash from orientation switch
+  delay(5);
+
+  // Click orientation confirmation button
+  const sheets = display.sheets;
+
+  if (sheets.length) {
+    const confirmation = sheets[0].buttons.byName('Confirm');
+    return confirmation.enabled() && confirmation.click();
+  }
+};
+
+// Bring Display Window Forward
+sp.activate()
+// Bring 'Displays' to the foreground
+sp.panes["com.apple.preference.displays"].reveal();
+
+
+// Find the primary display
+const standardDisplay = findWindow(se,'DELL U2717D (1)');
+// Find the drop down for orientation
+const standardRotation = findPopupButton(standardDisplay, 'Rotation:');
+// Rotate
+rotateDisplay(se, standardDisplay, standardRotation);
+
+// Find the second display
+const rotatedDisplay = findWindow(se, 'DELL U2717D (2)')
+// Find the drop down for orientation
+const rotatedRotation = findPopupButton(rotatedDisplay, 'Rotation:');
+
+// Click drop down and select orientation by keystroke
+rotateDisplay(se, rotatedDisplay, rotatedRotation, '90');
+
